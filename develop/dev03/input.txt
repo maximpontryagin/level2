@@ -3,4 +3,5 @@ j 100 Paris
 q 4 Beijing
 s -100 Hamburg
 f 1 Los Angeles
-f 0 Amsterdam
+b 0 Amsterdam
+f 1 Los Angeles

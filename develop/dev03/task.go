@@ -40,7 +40,7 @@ import (
 // Константа хранящая название файла для чтения
 const inputFile = "input.txt"
 
-// SortCinfing хранит информацию о флагах
+// SortConfing хранит информацию о флагах
 type SortConfing struct {
 	sortColumnFlag    int
 	sortByNumberFlag  bool
@@ -77,14 +77,15 @@ func sortByAlphabet(input [][]string, cfg *SortConfing) [][]string {
 	// Функция сортировки по алфавиту
 
 	// Проверка флага на требование к обратной сортировке. Сравниваются слова в указанном столбце (fg.sortColumnFlag)
-	if !cfg.sortReverseFlag {
+	if cfg.sortReverseFlag {
+		sort.Slice(input, func(i, j int) bool {
+			return input[i][cfg.sortColumnFlag] > input[j][cfg.sortColumnFlag]
+		})
+	} else {
 		sort.Slice(input, func(i, j int) bool {
 			return input[i][cfg.sortColumnFlag] < input[j][cfg.sortColumnFlag]
 		})
 	}
-	sort.Slice(input, func(i, j int) bool {
-		return input[i][cfg.sortColumnFlag] > input[j][cfg.sortColumnFlag]
-	})
 	return input
 }
 
@@ -129,6 +130,20 @@ func sortInput(input [][]string, cfg *SortConfing) ([][]string, error) {
 	return result, nil
 }
 
+func deleteNonUniqueLines(input [][]string) [][]string {
+	// Проверяет строки на уникальность
+	seen := make(map[string]bool)
+	var result [][]string
+	for _, line := range input {
+		strLine := strings.Join(line, " ")
+		if !seen[strLine] {
+			seen[strLine] = true
+			result = append(result, line)
+		}
+	}
+	return result
+}
+
 func main() {
 	var cfg SortConfing
 	cfg.parseConfig()
@@ -143,6 +158,10 @@ func main() {
 	res, err := sortInput(resultReadLine, &cfg)
 	if err != nil {
 		log.Println(err)
+	}
+
+	if cfg.sortNotRepeatFlag {
+		res = deleteNonUniqueLines(res)
 	}
 	fmt.Println(res)
 }
