@@ -1,5 +1,10 @@
 package main
 
+import (
+	"flag"
+	"fmt"
+)
+
 /*
 === Утилита grep ===
 
@@ -18,6 +23,15 @@ package main
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
+const (
+	inputFile  = "input.txt"
+	outputFile = "output.txt"
+)
 
+func main() {
+	var age int
+	flag.IntVar(&age, "age", 20, "Целове число возраста")
+
+	flag.Parse()
+	fmt.Println(age)
 }

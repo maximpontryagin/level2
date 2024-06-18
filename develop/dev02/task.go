@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"unicode"
@@ -34,7 +35,7 @@ func unpackString(str string) (string, error) {
 		return "", nil
 	}
 	if _, err := strconv.Atoi(string(str[0])); err == nil {
-		return "", errors.New("incorrect string")
+		return "", errors.New("некорректная строка")
 	}
 
 	runes := []rune(str)
@@ -72,6 +73,7 @@ func main() {
 	unpacked, err := unpackString(str)
 	if err != nil {
 		log.Println("Error:", err)
+		os.Exit(1)
 	}
 	fmt.Println(unpacked)
 }
