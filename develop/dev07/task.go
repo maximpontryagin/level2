@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
 /*
 === Or channel ===
 
@@ -33,6 +39,46 @@ start := time.Now()
 fmt.Printf(“fone after %v”, time.Since(start))
 */
 
-func main() {
+// inputChannels - слайс каналов
+func or(inputChannels ...<-chan interface{}) <-chan interface{} {
+	// or позволяет блокировать программу возвращаемым каналом chSignal до получения сигнала из всех
+	// переданных в функцию каналов. Может быть полезна для синхронизации горутин.
+	chSignal := make(chan interface{})
+	defer close(chSignal)
 
+	var wg sync.WaitGroup
+	for _, channel := range inputChannels {
+		wg.Add(1)
+		go func(ch <-chan interface{}) {
+			for i := range ch {
+				chSignal <- i
+			}
+			wg.Done()
+		}(channel)
+	}
+	wg.Wait()
+	return chSignal
+}
+
+func main() {
+	sig := func(after time.Duration) <-chan interface{} {
+		c := make(chan interface{})
+		go func() {
+			defer close(c)
+			time.Sleep(after)
+		}()
+		return c
+	}
+
+	start := time.Now()
+	<-or(
+		// sig(2*time.Hour),
+		// sig(5*time.Minute),
+		sig(1*time.Second),
+		sig(4*time.Second),
+		sig(9*time.Second),
+		// sig(1*time.Hour),
+		// sig(1*time.Minute),
+	)
+	fmt.Printf("done after %v", time.Since(start))
 }
