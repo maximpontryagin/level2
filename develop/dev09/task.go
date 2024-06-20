@@ -20,12 +20,16 @@ import (
 const outputFile = "output.txt"
 
 func writeHtmlToFile(outputFile string, response *http.Response) error {
+	// Записывает тело html запроса в файл
 	file, err := os.Create(outputFile)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		return err
+	}
+	err = file.Close()
 	if err != nil {
 		return err
 	}
