@@ -44,9 +44,6 @@ func main() {
 	// Инициализация кеша в памяти. Используется как основное хранилище данных.
 	cache := storage.NewCache()
 
-	// var event models.Event
-	// err := json.Unmarshal(m.Data, &event)
-
 	var wg sync.WaitGroup
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
