@@ -1,5 +1,18 @@
 package main
 
+import (
+	"context"
+	"dev11/internal/config"
+	"dev11/internal/server"
+	"dev11/internal/storage"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+)
+
 /*
 === HTTP server ===
 
@@ -23,5 +36,29 @@ package main
 */
 
 func main() {
+	cfg, err := config.NewConfigServer()
+	if err != nil {
+		log.Println("Ошибка парсинга конфига: ", err)
+	}
+	fmt.Println(cfg)
+	// Инициализация кеша в памяти. Используется как основное хранилище данных.
+	cache := storage.NewCache()
 
+	// var event models.Event
+	// err := json.Unmarshal(m.Data, &event)
+
+	var wg sync.WaitGroup
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	// Запуск сервера (Graceful shutdown внутри функции StartServer)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := server.StartServer(ctx, &cfg, cache); err != nil {
+			log.Println("Ошибка при работе HTTP сервера:", err)
+		} else {
+			log.Println("Успешно закрыл HTTP сервер")
+		}
+	}()
+	wg.Wait()
 }
